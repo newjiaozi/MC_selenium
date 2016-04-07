@@ -8,6 +8,8 @@ Created on 2016 4 7
 from basePage import BasePage
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
+
 
 class CompanyManage(BasePage):
     
@@ -19,7 +21,8 @@ class CompanyManage(BasePage):
     PHONE_INPUT_XPATH='//*[@id="search_form"]/div[6]/input'      ##商户电话
     ADDR_INPUT_XPATH='//*[@id="search_form"]/div[7]/input'           ##商户地址
     CUSTOMPHONE_INPUT_XPATH='//*[@id="search_form"]/div[8]/input'    ##收货人电话
-    SEARCH_BUTTON_ID='search_btn'  ## 提交查询   
+    SEARCH_BUTTON_ID='search_btn'  ## 提交查询  
+    CITY_RESULT_XPATH='//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[3]' ##检索数据中城市所在列，需要替换到对应行  
      
 
     ## 默认查询功能，
@@ -33,7 +36,18 @@ class CompanyManage(BasePage):
             return False
             
     def searchCompanyByCity(self):
-        pass
+        city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
+        Select(city).select_by_visible_text(u'北京')
+        submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
+        submit.click()
+        for i in range(1,21):
+            city = self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % i)
+            if city.text != u'北京':
+                return False
+        return True
+        
+        
+        
     def searchCompanyByArea(self):
         pass
     def searchCompanyByStatus(self):

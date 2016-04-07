@@ -10,10 +10,9 @@ import time
 import unittest
 import os
 
-from ..page.login import Login
+
 
 import HTMLTestRunner
-from _imagingmath import abs_I
 
 now=time.strftime('%Y%m%d-%H%M%S',time.localtime())
 
@@ -31,19 +30,25 @@ logging.getLogger().addHandler(console)
 
 
 
-abs_current_dir = os.path.abspath(os.path.curdir)
-asb_case_dir = os.path.abspath('abs_current_dir%stestcases' % os.pathsep)
+abs_pardir = os.path.abspath(os.path.pardir)
+
+abs_case_dir = os.path.join(abs_pardir,'testcases')
+
+logging.info(abs_case_dir)
 
 
 def creatTestSuit():
     testsuit = unittest.TestSuite()
-    discover = unittest.defaultTestLoader.discover(asb_case_dir, 'test*.py', None)
-
+    discover = unittest.defaultTestLoader.discover(abs_case_dir, 'start_*.py', None)
+    for i in discover:
+        for j in i:
+            testsuit.addTest(j)
+    return testsuit
 
 if __name__ == '__main__':
     
-    testunit=unittest.TestSuite()
-    testunit.addTest(unittest.makeSuite(Company))
+    testsuits = creatTestSuit()
+    logging.info(testsuits)
     filename='%s_Company.html' % now
     fp=file(filename,'wb')
     runner = HTMLTestRunner.HTMLTestRunner(
@@ -51,4 +56,4 @@ if __name__ == '__main__':
         title=u'测试报告',
         description=u'用例执行情况：')    
       
-    runner.run(testunit)
+    runner.run(testsuits)
