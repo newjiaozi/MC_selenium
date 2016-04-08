@@ -12,6 +12,7 @@ import os
 
 
 
+
 import HTMLTestRunner
 
 now=time.strftime('%Y%m%d-%H%M%S',time.localtime())
@@ -32,6 +33,7 @@ logging.getLogger().addHandler(console)
 
 abs_pardir = os.path.abspath(os.path.pardir)
 
+
 abs_case_dir = os.path.join(abs_pardir,'testcases')
 
 logging.info(abs_case_dir)
@@ -39,7 +41,8 @@ logging.info(abs_case_dir)
 
 def creatTestSuit():
     testsuit = unittest.TestSuite()
-    discover = unittest.defaultTestLoader.discover(abs_case_dir, 'start_*.py', None)
+    discover = unittest.defaultTestLoader.discover(abs_pardir, 'start_*.py',None)
+
     for i in discover:
         for j in i:
             testsuit.addTest(j)

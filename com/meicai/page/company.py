@@ -6,10 +6,13 @@ Created on 2016 4 7
 '''
 
 from basePage import BasePage
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
+import logging
+
+
+logging.getLogger()
 
 class CompanyManage(BasePage):
     
@@ -23,14 +26,22 @@ class CompanyManage(BasePage):
     CUSTOMPHONE_INPUT_XPATH='//*[@id="search_form"]/div[8]/input'    ##收货人电话
     SEARCH_BUTTON_ID='search_btn'  ## 提交查询  
     CITY_RESULT_XPATH='//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[3]' ##检索数据中城市所在列，需要替换到对应行  
-     
+    
+    
+    def __init__(self,driver):
+        self.driver = driver
+        BasePage.__init__(self, self.driver)
 
     ## 默认查询功能，
-    def searchCompanyCheckDefault(self,driver):
-        city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
+    def searchCompanyCheckDefault(self):
+        logging.info("starting")
+        city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)        
         area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
         status = self.driver.find_element(By.XPATH,self.STATUS_SELECT_XPATH)
-        if city.text == u'全部' and area.text == u'全部' and status.text == u'有效':
+
+        if Select(city).first_selected_option.text == u'全部' and \
+            Select(area).first_selected_option.text == u'全部' and \
+            Select(status).first_selected_option.text == u'有效':
             return True
         else:
             return False
@@ -57,7 +68,7 @@ class CompanyManage(BasePage):
     def searchCompanyByName(self):
         pass    
     def searchCompanyByPhone(self):
-        pass
+        self.driver
     def searchCompanyByAddress(self):
         pass
     def searchCompanyByCustomPhone(self):
