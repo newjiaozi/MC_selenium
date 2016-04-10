@@ -41,7 +41,6 @@ class CompanyManage(BasePage):
 
     ## 默认查询功能，
     def searchCompanyCheckDefault(self):
-        logging.info("starting")
         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)        
         area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
         status = self.driver.find_element(By.XPATH,self.STATUS_SELECT_XPATH)
@@ -51,7 +50,7 @@ class CompanyManage(BasePage):
 #         self.SUM_TOTAL = int(sum_total.text)
         
 
-        
+        logging.info(Select(city).first_selected_option.text+Select(area).first_selected_option.text+Select(status).first_selected_option.text )
         if Select(city).first_selected_option.text == u'全部' and \
             Select(area).first_selected_option.text == u'全部' and \
             Select(status).first_selected_option.text == u'有效':
@@ -90,42 +89,53 @@ class CompanyManage(BasePage):
         submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
         submit.click()        
         cw_handle = self.driver.current_window_handle
-        
+        sleep(2)
         ## 进入第一行数据的商户名称，查看是否含有城市，和区域信息，比对title，如果都对返回True,有一个不符就返回False
         firstline_company_name = self.driver.find_element(By.XPATH,self.FIRSTLINE_DATA_COMPANYNAME_XPATH)
         firstline_company_name.click()
+        sleep(2)
         
         for i in self.driver.window_handles:
             if i != cw_handle:
                 self.driver.switch_to_window(i)
+
                 if u'北京 ' not in self.dirver.page_source:
+                    logging.info(u'北京 not in')
                     return False
                 elif u'亦庄' not in self.dirver.page_source:
+                    logging.info(u'亦庄 not in')
                     return False
-                elif self.dirver.title != 'COMPANY - View Company':
+                elif self.driver.title != 'COMPANY - View Company':
+                    logging.info(self.driver.title)
                     return False
-                self.driver.close()
-                self.driver.switch_to_window(cw_handle)  
+        self.driver.close()
+        self.driver.switch_to_window(cw_handle)  
                 
-        
+        sleep(2)
         ## 进入第一行数据的商户地址，查看title，以及地址与进入之前是否一致，都正确则返回True，有一项不符就返回False
-        fistline_company_address =  self.driver.find_element(By.XPATH,self.FIRSTLINE_DATA_COMPANYADDRESS_XPAHT)  
+        fistline_company_address =  self.driver.find_element(By.XPATH,self.FIRSTLINE_DATA_COMPANYADDRESS_XPAHT)
+        fistline_company_address_text = fistline_company_address.text  
         fistline_company_address.click()
-        
+        sleep(2)
         for i in self.driver.window_handles:
             if i != cw_handle:
                 self.driver.switch_to_window(i)
-                
+
                 c_addr = self.driver.find_element(By.ID,self.COORDINATE_ADDRESS_ID)
                 
+                
+                
                 if self.driver.title != 'COMPANY - Coordinate Company':
+                    logging.info(self.driver.title)
                     return False
                 
-                elif c_addr.get_attribute('value') != fistline_company_address.text:
+                
+                elif c_addr.get_attribute('value') not in fistline_company_address_text:
+                    logging.info(c_addr.get_attribute('value')+"##"+fistline_company_address_text)
                     return False
              
-                self.driver.close()
-                self.driver.switch_to_window(cw_handle)          
+        self.driver.close()
+        self.driver.switch_to_window(cw_handle)          
             
         return True        
         
