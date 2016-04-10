@@ -7,9 +7,13 @@ Created on 2016年4月7日
 
 
 
+
+
 class BasePage():    
     def __init__(self,driver):
-        self.dirver=driver    
+        self.dirver=driver   
+    
+
 
 if __name__ == '__main__':
     pass

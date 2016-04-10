@@ -25,7 +25,7 @@ class Login():
         firefox_profile = webdriver.FirefoxProfile(r'C:\Users\Administrator\AppData\Roaming\Mozilla\Firefox\Profiles\a5dra0qm.default')
         
         browser = webdriver.Firefox(firefox_profile=firefox_profile)
-        browser.implicitly_wait(10)
+        browser.implicitly_wait(30)
         browser.maximize_window()  
         browser.get(self.url_addr)
         logging.info(self.url_addr) 
