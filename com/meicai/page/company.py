@@ -18,6 +18,7 @@ logging.getLogger()
 
 class CompanyManage(BasePage):
     
+    ## 查询条件及提交
     CITY_SELECT_XPATH='//*[@id="search_form"]/div[1]/select'  ##城市下拉框
     AREA_SELECT_XPATH='//*[@id="search_form"]/div[2]/select'  ##区域下拉框 
     STATUS_SELECT_XPATH='//*[@id="search_form"]/div[3]/select' ##状态下拉框
@@ -27,6 +28,8 @@ class CompanyManage(BasePage):
     ADDR_INPUT_XPATH='//*[@id="search_form"]/div[7]/input'           ##商户地址
     CUSTOMPHONE_INPUT_XPATH='//*[@id="search_form"]/div[8]/input'    ##收货人电话
     SEARCH_BUTTON_ID='search_btn'  ## 提交查询  
+    
+    
     CITY_RESULT_XPATH='//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[3]' ##检索数据中城市所在列，需要替换到对应行  
     SUM_COMPANY_ID='total'  ## 当前查询的门店数
     SUM_TOTAL=0 ## 查询结果总数
@@ -35,7 +38,24 @@ class CompanyManage(BasePage):
     COORDINATE_ADDRESS_ID = 'address'    ## coordinate 页面的地址ID
     HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/button' ## 首行的操作按键
     EDIT_HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/ul/li/a'  ##首行的操作按键中的编辑链接
+
     
+    ## 编辑门店信息页面
+    
+    EDIT_COMPANY_NAME_ID ='company_name_input' ## 门店名称
+    EDIT_COMPANY_BRANCH_ID = 'branch_mark_input' ## 分店标志
+    EDIT_COMPANY_PERSON_NAME_ID = 'person_name' ## 负责人姓名
+    EDIT_COMPANY_PHONE_ID = 'company_phone' ## 电话
+    EDIT_COMPANY_CITY_ID = 'city_select' ## 城市
+    EDIT_COMPANY_CAIXI_XPATH = '//*[@id="s2id_company_area_total_select"]/a' ## 菜系 
+    EDIT_COMPANY_START_TIME_ID = 'company_expect_period_start' ## 最早收货时间
+    EDIT_COMPANY_END_TIME_ID = 'company_expect_period_end' ## 最晚收货时间
+    EDIT_COMPANY_PAY_ID = 'pay_way' ## 付款方式
+    EDIT_COMPANY_ADDR_ID = 'company_address' ## 地址
+    EDIT_COMPANY_DESC_ID = 'company_desc' ## 备注
+    EDIT_COMPANY_TYPE_ID = 'extend_type' ## 特殊门店
+    EDIT_COMPANY_STATUS_ID = 'company_status' ## 门店状态
+    EDIT_COMPANY_REASON_ID = 'change_status_reason' ## 变更原因
     
     def __init__(self,driver):
         self.driver = driver
@@ -237,6 +257,7 @@ class CompanyManage(BasePage):
         self.driver.switch_to_window(cw_handle) 
         return True 
     
+    ## 点击操作，选择编辑
     def editCompanyInfo(self):
         c_handle = self.driver.find_element(By.XPATH,self.HANDLE_BUTTON_XPATH)
         c_handle.click()
