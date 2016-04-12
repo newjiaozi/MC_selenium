@@ -263,6 +263,20 @@ class CompanyManage(BasePage):
         c_handle.click()
         c_edit = self.driver.find_element(By.XPATH,self.EDIT_HANDLE_BUTTON_XPATH)
         c_handle.switch_to(c_edit).click()
+        edit_active_element = self.driver.switch_to_active_element()
+        edit_name = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_name.clear()
+        edit_name.sendkeys(u'Jo_web_测试')
+        
+        edit_status = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_STATUS_ID)
+        Select(edit_status).select_by_visible_text(u'有效')
+                
+        edit_cancel = edit_active_element.find_element(By.LINK_TEXT,u'取消')
+        edit_submit = edit_active_element.find_element(By.LINK_TEXT,u'确定')
+        
+        edit_submit.click()
+        
+        
           
     
 class UserManager(BasePage):
