@@ -8,11 +8,12 @@ Created on 2016 4 7
 from basePage import BasePage
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 
 import logging
 from time import sleep
+
+
 
 logging.getLogger()
 
@@ -33,8 +34,25 @@ class CompanyManage(BasePage):
     CITY_RESULT_XPATH='//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[3]' ##检索数据中城市所在列，需要替换到对应行  
     SUM_COMPANY_ID='total'  ## 当前查询的门店数
     SUM_TOTAL=0 ## 查询结果总数
-    FIRSTLINE_DATA_COMPANYNAME_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[4]/a'  ## 查询结果的第一条数据，商户名称点击进入的链接
-    FIRSTLINE_DATA_COMPANYADDRESS_XPAHT = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[8]/a' ## 查询结果的第一条数据，商户地址点击进入链接
+    
+    SEARCH_RESULT = '//*[@id="company_grid_index_table"]/tbody/tr' ## 查询有多少tr，就是当前页有多少结果
+    
+    
+    ## 随机选择一行进入 商户信息和地址页面
+    RANDLINE_DATA_COMPANYADDRESS_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[8]/a' ## 查询结果某一列的数据，商户地址点击进入链接
+    RANDTLINE_DATA_COMPANYNAME_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[4]/a' ## 查询结果某一列的数据，商户名称点击进入链接
+    
+    ## 首行数据的商户id、商户名称、商户电话、商户地址
+    FIRST_DATA_NAME_XPATH ='//*[@id="company_grid_index_table"]/tbody/tr/td[4]/a' ## 门店名称
+    FIRST_DATA_PHONE_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr/td[7]' # 门店电话
+    FIRST_DATA_ADDR_XPATH= '//*[@id="company_grid_index_table"]/tbody/tr/td[8]/a' # 门店地址
+    
+    ## 跳转页
+    
+    VIEW_COMPANY_TITLE = 'COMPANY - View Company'  ## 点击商户名称进入的页面的title
+    COORDINATE_COMPANY_TITLE = 'COMPANY - Coordinate Company' ## 点击商户地址进入的页面的title
+    
+    
     COORDINATE_ADDRESS_ID = 'address'    ## coordinate 页面的地址ID
     HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/button' ## 首行的操作按键
     EDIT_HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/ul/li/a'  ##首行的操作按键中的编辑链接
@@ -57,6 +75,14 @@ class CompanyManage(BasePage):
     EDIT_COMPANY_STATUS_ID = 'company_status' ## 门店状态
     EDIT_COMPANY_REASON_ID = 'change_status_reason' ## 变更原因
     
+    
+    ## 选择菜系页面
+    CAIXI_SICHUAN_XPATH = '//*[@id="class_body"]/div[5]/div[1]' ## 四川菜
+    CAIXI_HUNAN_XPATH = '//*[@id="class_body"]/div[5]/div[2]' ## 湘(湖南)菜
+    CAIXI_DONGBEI_XPATH = '//*[@id="class_body"]/div[5]/div[2]' ## 东北菜
+    
+    
+    
     def __init__(self,driver):
         self.driver = driver
         BasePage.__init__(self, self.driver)
@@ -66,11 +92,7 @@ class CompanyManage(BasePage):
         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)        
         area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
         status = self.driver.find_element(By.XPATH,self.STATUS_SELECT_XPATH)
-        
-#         sum_total = WebDriverWait(self.dirver,10).until(EC.presence_of_element_located((By.ID,self.SUM_COMPANY_ID))) 
-#         
-#         self.SUM_TOTAL = int(sum_total.text)
-        
+      
 
         logging.info(Select(city).first_selected_option.text+Select(area).first_selected_option.text+Select(status).first_selected_option.text )
         if Select(city).first_selected_option.text == u'全部' and \
@@ -81,33 +103,27 @@ class CompanyManage(BasePage):
             return False
         
     ## 通过城市检索商户       
-    def searchCompanyByCity(self):
+    def searchCompanyByCity(self,city_text=u'北京'):
         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
-        Select(city).select_by_visible_text(u'上海')
+        Select(city).select_by_visible_text(city_text)
         submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
-        submit.click()
-        
-#         sum_total = WebDriverWait(self.dirver,10).until(EC.presence_of_element_located((By.ID,self.SUM_COMPANY_ID)))        
-#         
-#         previous_sum = self.SUM_TOTAL
-#         self.SUM_TOTAL = sum_total.text
-#         
-#         if previous_sum < self.SUM_TOTAL:
-#             return False              
-        
+        submit.click()              
         sleep(3)
-        for i in range(1,21):
-            city = self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % i)
-            if city.text != u'上海':
+        
+        results = self.driver.find_elements(By.XPATH,self.SEARCH_RESULT)
+        
+        for i in range(0,len(results)):
+            city = self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % (i+1))
+            if city.text != city:
                 return False
         return True        
         
     ## 通过选择区域检索数据    
-    def searchCompanyByArea(self):
+    def searchCompanyByArea(self,city_text=u'北京',area_text=u'亦庄'):
         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
-        Select(city).select_by_visible_text(u'北京')
+        Select(city).select_by_visible_text(city_text)
         area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
-        Select(area).select_by_visible_text(u'亦庄')
+        Select(area).select_by_visible_text(area_text)
         submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
         submit.click()        
 #         cw_handle = self.driver.current_window_handle
@@ -162,29 +178,52 @@ class CompanyManage(BasePage):
         if self.getInViewCompany():
             if self.getInCoordinateCompany():
                 return True
-        return False
-            
+        return False    
         
+
+    ## 检索数据，通过 选择城市，区域，状态，id，名称，电话，地址，收货人电话 各个条件检索
+    def searchCompany(self,city=u'全部',area=u'全部',status=u'全部',c_id='',name='',phone='',addr='',cus_phone=''):
+        city_element = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
+        Select(city_element).select_by_visible_text(city)
+        area_element = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
+        Select(area_element).select_by_visible_text(area) 
+        status_element = self.driver.find_element(By.XPATH,self.STATUS_SELECT_XPATH)
+        Select(status_element).select_by_visible_text(status)
+        submit_element = self.driver.find_element(By.XPATH,self.SEARCH_BUTTON_ID) 
+        
+        
+        if c_id:
+            id_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            inputText(id_element, c_id)
+        if name:
+            name_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            inputText(name_element, name)
+        if phone:
+            phone_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            inputText(phone_element, phone)
+        if addr:
+            addr_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            inputText(addr_element, addr)
+        if cus_phone:
+            cus_phone_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            inputText(cus_phone_element, cus_phone)            
+        submit_element.click()    
+            
+    
+    
+    ## 检查检索结果正确性
+    def checkSearchResult(self,c_id='',name='',phone='',addr='',cus_phone=''):
+        if c_id:
+            self.driver.find_element()
+        
+        
+        
+        
+            
+            
+            
           
         
-        
-        
-        
-                
-        
-    def searchCompanyByStatus(self):
-        pass
-    def searchCompanyById(self):
-        pass
-    def searchCompanyByName(self):
-        pass    
-    def searchCompanyByPhone(self):
-        self.driver
-    def searchCompanyByAddress(self):
-        pass
-    def searchCompanyByCustomPhone(self):
-
-        pass
     
     ## 将城市选择全部，配送区域选择全部，门店状态为全部，其他输入框都清空
     def searchConditionReset(self):
@@ -269,15 +308,20 @@ class CompanyManage(BasePage):
         edit_name.sendkeys(u'Jo_web_测试')
         
         edit_status = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_STATUS_ID)
-        Select(edit_status).select_by_visible_text(u'有效')
-                
-        edit_cancel = edit_active_element.find_element(By.LINK_TEXT,u'取消')
+        Select(edit_status).select_by_visible_text(u'有效')          
+
+        edit_active_element.find_element(By.XPATH,self.EDIT_COMPANY_CAIXI_XPATH).click()
+        caixi = self.driver.switch_to_active_element()
+        caixi.find_element(By.XPATH,self.CAIXI_SICHUAN_XPATH).click()
+        caixi.find_element(By.XPATH,self.CAIXI_HUNAN_XPATH).click()
+        caixi.find_element(By.XPATH,self.CAIXI_DONGBEI_XPATH).click()
+        caixi.find_element(By.LINK_TEXT,u'确定').click()
+#         edit_cancel = edit_active_element.find_element(By.LINK_TEXT,u'取消')
         edit_submit = edit_active_element.find_element(By.LINK_TEXT,u'确定')
         
-        edit_submit.click()
+        edit_submit.click()        
         
-        
-          
+
     
 class UserManager(BasePage):
     
@@ -287,7 +331,10 @@ class UserManager(BasePage):
         pass    
     def searchUserById(self):
         pass
-
+    
+def inputText(element,text):
+    element.clear()
+    element.send_keys(text)
 
 if __name__ == '__main__':
     pass
