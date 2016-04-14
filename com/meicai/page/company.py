@@ -15,6 +15,7 @@ from time import sleep
 import random
 
 
+
 logging.getLogger()
 
 class CompanyManage(BasePage):
@@ -44,6 +45,9 @@ class CompanyManage(BasePage):
     ## 商户信息和地址页面链接
     RANDLINE_DATA_COMPANYADDRESS_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[8]/a' ## 查询结果某一列的数据，商户地址点击进入链接
     RANDTLINE_DATA_COMPANYNAME_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[4]/a' ## 查询结果某一列的数据，商户名称点击进入链接
+    ## 操作和编辑的定位，需自定义行
+    HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%]/td[12]/div/div/button' ## 首行的操作按键
+    EDIT_HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[%s]/td[12]/div/div/ul/li/a'  ##首行的操作按键中的编辑链接
 
     
     SUM_COMPANY_ID='total'  ## 当前查询结果的门店数
@@ -65,8 +69,6 @@ class CompanyManage(BasePage):
     VIEW_COMPANY_CUSTOM_XPATH = '//*[@id="custom_tab"]/a' # view company页面 【收货人】
     
     COORDINATE_ADDRESS_ID = 'address'    ## coordinate 页面的地址ID
-    HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/button' ## 首行的操作按键
-    EDIT_HANDLE_BUTTON_XPATH = '//*[@id="company_grid_index_table"]/tbody/tr[1]/td[12]/div/div/ul/li/a'  ##首行的操作按键中的编辑链接
 
     
     ## 编辑门店信息页面
@@ -85,6 +87,7 @@ class CompanyManage(BasePage):
     EDIT_COMPANY_TYPE_ID = 'extend_type' ## 特殊门店
     EDIT_COMPANY_STATUS_ID = 'company_status' ## 门店状态
     EDIT_COMPANY_REASON_ID = 'change_status_reason' ## 变更原因
+    
     
     
     ## 选择菜系页面
@@ -245,7 +248,7 @@ class CompanyManage(BasePage):
 
             if name:
                 for i in range(0,len(results)):
-                    if self.driver.find_element(By.XPATH,self.NAME_RESULT_XPATH % (i+1)).text != name:
+                    if name not in self.driver.find_element(By.XPATH,self.NAME_RESULT_XPATH % (i+1)).text :
                         return False
             if branch:
                 for i in range(0,len(results)):
@@ -261,7 +264,7 @@ class CompanyManage(BasePage):
                         return False
             if addr:
                 for i in range(0,len(results)):
-                    if self.driver.find_element(By.XPATH,self.ADDR_RESULT_XPATH % (i+1)).text != addr:
+                    if addr not in self.driver.find_element(By.XPATH,self.ADDR_RESULT_XPATH % (i+1)).text:
                         return False
             if cus_time:
                 for i in range(0,len(results)):
@@ -271,12 +274,28 @@ class CompanyManage(BasePage):
                 for i in range(0,len(results)):
                     if self.driver.find_element(By.XPATH,self.STATUS_RESULT_XPATH % (i+1)).text != status:
                         return False
-                               
+        return True                           
                                 
             
                 
                     
-        
+    def editNewCompany(self,addr_check='',branck='',start_time='',end_time='',status=u'有效'):
+        self.searchCompany(status=u'待处理')
+        results = self.driver.find_element(By.XPATH,self.SEARCH_RESULT)
+        line_num = len(results)
+        if self.checkSearchCompanyResult(status=u'待处理') and line_num:
+            line_num = random.randrange(1,line_num+1)
+            company_id = self.driver.find_element(By.XPATH,self.ID_RESULT_XPATH % line_num)
+            company_id_text = company_id.text
+            
+            handle_button = self.driver.find_element(By.XPATH,self.HANDLE_BUTTON_XPATH % line_num)
+            handle_button_edit = self.driver.find_element(By.XPATH,self.EDIT_HANDLE_BUTTON_XPATH % line_num)
+            self.editCompanyInfo(handle_button,handle_button_edit)
+            
+            
+    
+    def editValidCompany(self):   
+        pass 
         
         
             
@@ -356,29 +375,62 @@ class CompanyManage(BasePage):
         return True 
     
     ## 点击操作，选择编辑
-    def editCompanyInfo(self):
-        c_handle = self.driver.find_element(By.XPATH,self.HANDLE_BUTTON_XPATH)
-        c_handle.click()
-        c_edit = self.driver.find_element(By.XPATH,self.EDIT_HANDLE_BUTTON_XPATH)
-        c_handle.switch_to(c_edit).click()
-        edit_active_element = self.driver.switch_to_active_element()
-        edit_name = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
-        edit_name.clear()
-        edit_name.sendkeys(u'Jo_web_测试')
+    def editCompanyInfo(self,handle_button,handle_button_edit,name='',branch='',person_name='',phone='',start_time='',end_time='',addr='',status=''):
         
-        edit_status = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_STATUS_ID)
-        Select(edit_status).select_by_visible_text(u'有效')          
-
-        edit_active_element.find_element(By.XPATH,self.EDIT_COMPANY_CAIXI_XPATH).click()
-        caixi = self.driver.switch_to_active_element()
-        caixi.find_element(By.XPATH,self.CAIXI_SICHUAN_XPATH).click()
-        caixi.find_element(By.XPATH,self.CAIXI_HUNAN_XPATH).click()
-        caixi.find_element(By.XPATH,self.CAIXI_DONGBEI_XPATH).click()
-        caixi.find_element(By.LINK_TEXT,u'确定').click()
-#         edit_cancel = edit_active_element.find_element(By.LINK_TEXT,u'取消')
+        handle_button.click()
+        handle_button.switch_to(handle_button_edit).click()
+        
+        
+        edit_active_element = self.driver.switch_to_active_element()
+        
+        edit_caixi = edit_active_element.find_element(By.XPATH,self.EDIT_COMPANY_CAIXI_XPATH)
+        edit_name = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_branch = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_person_name = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_phone = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_start_time = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_end_time = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_addr = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
+        edit_status = edit_active_element.find_element(By.ID,self.EDIT_COMPANY_NAME_ID)
         edit_submit = edit_active_element.find_element(By.LINK_TEXT,u'确定')
         
-        edit_submit.click()        
+        if name:
+            inputText(edit_name,name)
+        
+        if branch:
+            inputText(edit_branch,branch)
+        
+        if person_name:
+            inputText(edit_person_name,person_name)
+        
+        if phone:
+            inputText(edit_phone,phone)
+        
+        if start_time:
+            Select(edit_start_time).select_by_visible_text(start_time)
+        
+        if end_time:
+            Select(edit_end_time).select_by_visible_text(end_time)
+        
+        if addr:
+            inputText(edit_addr,addr)
+        
+        if status:
+            Select(edit_status).select_by_visible_text(status)
+       
+        ## 操作菜系，选择四川菜湖南菜和东北菜,没有菜系的时候才会操作；有菜系则不进行该部分操作
+        if not edit_caixi.text:       
+            edit_active_element.find_element(By.XPATH,self.EDIT_COMPANY_CAIXI_XPATH).click()
+            caixi = self.driver.switch_to_active_element()
+            caixi.find_element(By.XPATH,self.CAIXI_SICHUAN_XPATH).click()
+            caixi.find_element(By.XPATH,self.CAIXI_HUNAN_XPATH).click()
+            caixi.find_element(By.XPATH,self.CAIXI_DONGBEI_XPATH).click()
+            caixi.find_element(By.LINK_TEXT,u'确定').click()
+
+        ## 提交整体编辑数据
+        edit_submit.click()
+        
+                
         
 
     
