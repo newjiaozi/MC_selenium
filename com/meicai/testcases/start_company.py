@@ -40,13 +40,15 @@ class company(unittest.TestCase):
          
         self.assertTrue(self.cm.searchCompanyCheckDefault())
     
+#     def test2_searchCompanyByCity(self):
+#           
+#         self.assertTrue(self.cm.searchCompanyByCity())
+#         
+#     def test3_searchCompanyByArea(self):
+#         
+#         self.assertTrue(self.cm.searchCompanyByArea())
     def test2_searchCompanyByCity(self):
-          
-        self.assertTrue(self.cm.searchCompanyByCity())
-        
-    def test3_searchCompanyByArea(self):
-        
-        self.assertTrue(self.cm.searchCompanyByArea())
+        self.cm.searchCompany(city=u'上海')        
      
 
 
