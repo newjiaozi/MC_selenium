@@ -64,11 +64,19 @@ class CompanyManage(BasePage):
     
     ## 跳转页    
     VIEW_COMPANY_TITLE = 'COMPANY - View Company'  ## 点击商户名称进入的页面的title
+    VIEW_COMPANY_AREA_XPATH = '//*[@id="basicInfoTab"]/div[1]/table[3]/tbody/tr[2]/td[2]' ## view company页面配送区域
+    
     COORDINATE_COMPANY_TITLE = 'COMPANY - Coordinate Company' ## 点击商户地址进入的页面的title
     
-    VIEW_COMPANY_CUSTOM_XPATH = '//*[@id="custom_tab"]/a' # view company页面 【收货人】
+    VIEW_COMPANY_CUSTOM_XPATH = '//*[@id="custom_tab"]/a'   ## view company页面 【收货人】
+    VIEW_COMPANY_CUSTOMPHONE_LINES_XPATH = '//*[@id="customAddress_grid_index_table"]/tbody/tr'  ##收货人所有行
+    VIEW_COMPANY_CUSTOMPHONE_XPATH = '//*[@id="customAddress_grid_index_table"]/tbody/tr[%s]/td[3]'  ##多个收货人时，收货人所有行的电话
     
+    VIEW_COMPANY_CUSTOMPHONE_SINGLE_XPATH = '//*[@id="customAddress_grid_index_table"]/tbody/tr/td[3]'  ##只有一个收货人时的电话定位
+                                             
     COORDINATE_ADDRESS_ID = 'address'    ## coordinate 页面的地址ID
+    COORDINATE_SEARCH_ID = 'searchBtn'  ## coordinate 页面搜索的ID
+    COORDINATE_SAVE_ID = 'saveBtn' ## coordinate 页面保存的ID
 
     
     ## 编辑门店信息页面
@@ -116,29 +124,29 @@ class CompanyManage(BasePage):
             return False
         
     ## 通过城市检索商户       
-    def searchCompanyByCity(self,city_text=u'北京'):
-        city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
-        Select(city).select_by_visible_text(city_text)
-        submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
-        submit.click()              
-        sleep(3)
-        
-        results = self.driver.find_elements(By.XPATH,self.SEARCH_RESULT)
-        
-        for i in range(0,len(results)):
-            city = self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % (i+1))
-            if city.text != city:
-                return False
-        return True        
+#     def searchCompanyByCity(self,city_text=u'北京'):
+#         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
+#         Select(city).select_by_visible_text(city_text)
+#         submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
+#         submit.click()              
+#         sleep(3)
+#         
+#         results = self.driver.find_elements(By.XPATH,self.SEARCH_RESULT)
+#         
+#         for i in range(0,len(results)):
+#             city = self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % (i+1))
+#             if city.text != city:
+#                 return False
+#         return True        
         
     ## 通过选择区域检索数据    
-    def searchCompanyByArea(self,city_text=u'北京',area_text=u'亦庄'):
-        city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
-        Select(city).select_by_visible_text(city_text)
-        area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
-        Select(area).select_by_visible_text(area_text)
-        submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
-        submit.click()        
+#     def searchCompanyByArea(self,city_text=u'北京',area_text=u'亦庄'):
+#         city = self.driver.find_element(By.XPATH,self.CITY_SELECT_XPATH)
+#         Select(city).select_by_visible_text(city_text)
+#         area = self.driver.find_element(By.XPATH,self.AREA_SELECT_XPATH)
+#         Select(area).select_by_visible_text(area_text)
+#         submit = self.dirver.find_element(By.ID,self.SEARCH_BUTTON_ID)
+#         submit.click()        
 #         cw_handle = self.driver.current_window_handle
 #         sleep(2)
 #         ## 进入第一行数据的商户名称，查看是否含有城市，和区域信息，比对title，如果都对返回True,有一个不符就返回False
@@ -188,10 +196,10 @@ class CompanyManage(BasePage):
 #         self.driver.close()
 #         self.driver.switch_to_window(cw_handle)          
         
-        if self.getInViewCompany():
-            if self.getInCoordinateCompany():
-                return True
-        return False    
+#         if self.getInViewCompany():
+#             if self.getInCoordinateCompany():
+#                 return True
+#         return False    
         
 
     ## 检索数据，通过 选择城市，区域，状态，id，名称，电话，地址，收货人电话 各个条件检索
@@ -203,22 +211,22 @@ class CompanyManage(BasePage):
         Select(area_element).select_by_visible_text(area) 
         status_element = self.driver.find_element(By.XPATH,self.STATUS_SELECT_XPATH)
         Select(status_element).select_by_visible_text(status)
-        submit_element = self.driver.find_element(By.XPATH,self.SEARCH_BUTTON_ID)         
+        submit_element = self.driver.find_element(By.ID,self.SEARCH_BUTTON_ID)         
         
         if c_id:
             id_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
             inputText(id_element, c_id)
         if name:
-            name_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            name_element = self.driver.find_element(By.XPATH,self.NAME_INPUT_XPATH)
             inputText(name_element, name)
         if phone:
-            phone_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            phone_element = self.driver.find_element(By.XPATH,self.PHONE_INPUT_XPATH)
             inputText(phone_element, phone)
         if addr:
-            addr_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            addr_element = self.driver.find_element(By.XPATH,self.ADDR_INPUT_XPATH)
             inputText(addr_element, addr)
         if cus_phone:
-            cus_phone_element = self.driver.find_element(By.XPATH,self.ID_INPUT_XPATH)
+            cus_phone_element = self.driver.find_element(By.XPATH,self.CUSTOMPHONE_INPUT_XPATH)
             inputText(cus_phone_element, cus_phone)            
         submit_element.click()    
             
@@ -228,10 +236,12 @@ class CompanyManage(BasePage):
     def checkSearchCompanyResult(self,c_id='',city='',area='',name='',branch='',person_name='',\
                                  phone='',addr='',cus_time='',status='',cus_phone=''):
         
+        
+        sleep(5)
         if self.driver.find_element(By.ID,self.SUM_COMPANY_ID) == '0':
             return False
         else:
-            results = self.driver.find_element(By.XPATH,self.SEARCH_RESULT)
+            results = self.driver.find_elements(By.XPATH,self.SEARCH_RESULT)
             
             if c_id:
                 for i in range(0,len(results)):
@@ -239,11 +249,12 @@ class CompanyManage(BasePage):
                         return False
             if city:
                 for i in range(0,len(results)):
+                    logging.info(self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % (i+1)).text)
                     if self.driver.find_element(By.XPATH,self.CITY_RESULT_XPATH % (i+1)).text != city:
                         return False
-            if area and cus_phone:
+            if area or cus_phone:
                 random_line_company_name = self.driver.find_element(By.XPATH,self.RANDTLINE_DATA_COMPANYNAME_XPATH % random.randrange(1,len(results)+1))
-                return self.getInViewCompany(random_line_company_name, area,cus_phone)
+                return self.getInViewCompany(random_line_company_name,area,cus_phone)
                 
 
             if name:
@@ -278,25 +289,31 @@ class CompanyManage(BasePage):
                                 
             
                 
-                    
-    def editNewCompany(self,addr_check='',branck='',start_time='',end_time='',status=u'有效'):
-        self.searchCompany(status=u'待处理')
-        results = self.driver.find_element(By.XPATH,self.SEARCH_RESULT)
+    ## 随机选择一条 门店数据进行编辑，然后记住门店id，编辑保存后检查各项配置的值                
+    def editCompany(self,addr='',branch='',start_time='',end_time='',status=u'有效'):
+        self.searchConditionReset()
+        self.searchCompany(status=status)
+        results = self.driver.find_elements(By.XPATH,self.SEARCH_RESULT)
         line_num = len(results)
-        if self.checkSearchCompanyResult(status=u'待处理') and line_num:
-            line_num = random.randrange(1,line_num+1)
-            company_id = self.driver.find_element(By.XPATH,self.ID_RESULT_XPATH % line_num)
+        logging.info(line_num)
+        if self.checkSearchCompanyResult(status=status) and line_num:
+            random_line_num = random.randrange(1,line_num+1)
+            company_id = self.driver.find_element(By.XPATH,self.ID_RESULT_XPATH % random_line_num)
+            
             company_id_text = company_id.text
+            logging.info(company_id_text)
             
-            handle_button = self.driver.find_element(By.XPATH,self.HANDLE_BUTTON_XPATH % line_num)
-            handle_button_edit = self.driver.find_element(By.XPATH,self.EDIT_HANDLE_BUTTON_XPATH % line_num)
-            self.editCompanyInfo(handle_button,handle_button_edit)
+            self.getInCoordinateCompany(line_num=random_line_num,addr=addr)
             
+            sleep(2)
+            handle_button = self.driver.find_element(By.XPATH,self.HANDLE_BUTTON_XPATH % random_line_num)
+            handle_button_edit = self.driver.find_element(By.XPATH,self.EDIT_HANDLE_BUTTON_XPATH % random_line_num)
+            self.editCompanyInfo(handle_button=handle_button, handle_button_edit=handle_button_edit,branch=branch,start_time=start_time, end_time=end_time, status=status)
+            self.searchCompany(c_id=company_id_text)
+            return self.checkSearchCompanyResult(c_id=company_id_text,addr=addr,branch=branch,time=start_time+'-'+end_time,status=status)
+        return False   
             
-    
-    def editValidCompany(self):   
-        pass 
-        
+
         
             
             
@@ -315,9 +332,9 @@ class CompanyManage(BasePage):
         c_addr = self.driver.find_element(By.XPATH,self.ADDR_INPUT_XPATH)
         c_cus_phone = self.driver.find_element(By.XPATH,self.CUSTOMPHONE_INPUT_XPATH)
                         
-        Select(city).select_by_index(1)
-        Select(area).select_by_index(1)
-        Select(status).select_by_index(1)
+        Select(city).select_by_visible_text(u'全部')
+        Select(area).select_by_visible_text(u'全部')
+        Select(status).select_by_visible_text(u'全部')
         c_id.clear()
         c_name.clear()
         c_phone.clear()
@@ -335,44 +352,63 @@ class CompanyManage(BasePage):
         for i in self.driver.window_handles:
             if i != cw_handle:
                 self.driver.switch_to_window(i)
-                if companyname_element not in self.dirver.page_source:
-                    logging.info(u'配送区域检查不通过')
-                    return False
-                elif self.driver.title != 'COMPANY - View Company':
-                    logging.info(self.driver.title)
-                    return False
-                self.driver.find_element(By.XPATH,self.VIEW_COMPANY_CUSTOM_XPATH).click()
-                if cus_phone not in  self.driver.page_source:
-                    return False                
+                
+                if area_text:
+                    view_area = self.driver.find_element(By.XPATH,self.VIEW_COMPANY_AREA_XPATH)
+                    if area_text != view_area.text:
+                        logging.info(u'配送区域检查不通过')
+                        return False
+
+                if cus_phone:
+                    self.driver.find_element(By.XPATH,self.VIEW_COMPANY_CUSTOM_XPATH).click()
+                    sleep(2)
+                    cus_phone_list = []
+                    cus_phones = self.driver.find_elements(By.XPATH,self.VIEW_COMPANY_CUSTOMPHONE_LINES_XPATH)
+                    if len(cus_phones) == 1:
+                        single_cus_phone = self.driver.find_element(By.XPATH,self.VIEW_COMPANY_CUSTOMPHONE_SINGLE_XPATH)
+                        logging.info(single_cus_phone.text)
+                        if cus_phone != single_cus_phone.text:
+                            return False
+                        
+                    else:
+                        for i in range(1,len(cus_phones)+1):
+                            cus_phone_list.append(self.driver.find_element(By.XPATH,self.VIEW_COMPANY_CUSTOMPHONE_XPATH % i).text)                        
+                        logging.info(cus_phone_list)
+                        if cus_phone not in cus_phone_list:
+                            return False               
                 
         self.driver.close()
         self.driver.switch_to_window(cw_handle)
+        return True
 
     
-    ## 点击商户地址，进入相关页面
-    def getInCoordinateCompany(self):
+    ## 点击商户地址，进入相关页面,添加地址，检索，保存，关闭页面！
+    def getInCoordinateCompany(self,line_num,addr):
         cw_handle = self.driver.current_window_handle
         sleep(2)
-        ## 进入第一行数据的商户地址，查看title，以及地址与进入之前是否一致，都正确则返回True，有一项不符就返回False
-        fistline_company_address =  self.driver.find_element(By.XPATH,self.FIRSTLINE_DATA_COMPANYADDRESS_XPAHT)
-        fistline_company_address_text = fistline_company_address.text  
-        fistline_company_address.click()
+        ## 进入商户地址，查看title，以及地址与进入之前是否一致，都正确则返回True，有一项不符就返回False
+        company_address =  self.driver.find_element(By.XPATH,self.RANDLINE_DATA_COMPANYADDRESS_XPATH % line_num)
+
+        company_address.click()
+        
         sleep(2)
+        
         for i in self.driver.window_handles:
             if i != cw_handle:
                 self.driver.switch_to_window(i)
-                c_addr = self.driver.find_element(By.ID,self.COORDINATE_ADDRESS_ID)        
-                if self.driver.title != 'COMPANY - Coordinate Company':
-                    logging.info(self.driver.title)
-                    return False
-                
-                elif c_addr.get_attribute('value') not in fistline_company_address_text:
-                    logging.info(c_addr.get_attribute('value')+"##"+fistline_company_address_text)
-                    return False
+                c_addr = self.driver.find_element(By.ID,self.COORDINATE_ADDRESS_ID) 
+                c_search = self.driver.find_element(By.ID,self.COORDINATE_SEARCH_ID) 
+                c_save = self.driver.find_element(By.ID,self.COORDINATE_SAVE_ID) 
+                    
+
+                inputText(c_addr, addr) 
+                c_search.click()
+                c_save.click()
+                self.driver.switch_to_alert().accept()
              
         self.driver.close()
         self.driver.switch_to_window(cw_handle) 
-        return True 
+
     
     ## 点击操作，选择编辑
     def editCompanyInfo(self,handle_button,handle_button_edit,name='',branch='',person_name='',phone='',start_time='',end_time='',addr='',status=''):
